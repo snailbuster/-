@@ -6,15 +6,15 @@ import pyautogui as pg
 
 skill1,skill2,skill3 = tuple(),tuple(),tuple()
 #设置分辨率
-resolution = (2560,1440)
+resolution = (1920,1080)
 rate = (resolution[0]/2560,resolution[1]/1440)
 
 def MyClick(xy):
     mouse.click(xy[0],xy[1])
-    time.sleep(1)
+    time.sleep(0.7)
 def MyMove(xy):
     mouse.move(xy[0],xy[1])
-    time.sleep(1)
+    time.sleep(0.7)
 
 def MyHoldKey(key,ti):
     start = time.time()
@@ -26,7 +26,8 @@ def MyHoldKey(key,ti):
     time.sleep(0.5)
 
 
-#函数功能 将所需要的坐标读入保存成字典
+
+#函数功能 将所选单位进行建造 并对单位m行#函数功能 将所需要的坐标读入保存成字典
 def read_data():
     data = {}
     data_path = r"./bloons.txt"
@@ -41,8 +42,7 @@ def read_data():
         mult_rate(xy, rate)
         data[ct[0]] = xy
         print(data)
-    return data
-#函数功能 将所选单位进行建造 并对单位m行技能 升级n次
+    return data技能 升级n次
 def build_unit(unit_xy,build_xy):
 
     MyClick(unit_xy)
@@ -84,7 +84,7 @@ def start_game(coordinate):
         MyClick(coordinate[item])
     #点掉提示信息
     happy_click()
-    time.sleep(6)
+    time.sleep(4)
     happy_click()
 
     #正式开始游戏
@@ -119,26 +119,38 @@ def start_game(coordinate):
         MyClick(coordinate['快进'])
     #防止升级一段时间
     wait = 0
-    while  wait < 360:
+    uptimes = 0
+    while  1:
         time.sleep(1)
         wait += 1
-        #5秒判断一下是否升级
-        if wait%5 == 0:
-            target = [1407,763]
-            mult_rate(target,rate)
+        #5秒判断一下屏幕
+        if wait%3 == 0 :
+            target = [1000,1007]
+            target = tuple(target)
             pix = pg.screenshot().getpixel(target)
-            if pix == (241,65,14):
-                #点掉升级
+            door = 3
+            #屏幕已经不正常运作
+            if not(pix == (138,200,36)):
+                uptimes+=1 #故障次数加1
                 happy_click()
-                time.sleep(5)
-                wait-=10
+                print("故障",uptimes)
+                happy_click()
+                #四次都是故障状态 为结束标志
+                if uptimes >= 4:
+                    print("一轮结束", uptimes)
+                    break
+            #屏幕正常但是有uptimes计数 说明中途升级弹窗等且被点掉了
+            elif pix == (138,200,36) and uptimes == 1:
+                print("应该快进")
                 MyClick(coordinate['快进'])
+                uptimes = 0
+
     #循环结束
     xyy = coordinate['下一页']
     MyClick(xyy)
     zy = coordinate['主页']
     MyClick(zy)
-    time.sleep(3)
+    time.sleep(5)
     return
 
 #对应项乘以系数
